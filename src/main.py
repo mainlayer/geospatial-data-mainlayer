@@ -44,7 +44,7 @@ app = FastAPI(
     description=(
         "Geospatial data API for AI mapping and location agents. "
         "Pay per query — geocoding, routing, places, elevation, tiles, and boundaries. "
-        "Powered by Mainlayer (https://api.mainlayer.xyz)."
+        "Powered by Mainlayer (https://api.mainlayer.fr)."
     ),
     version=VERSION,
     docs_url="/docs",
@@ -94,7 +94,7 @@ async def root() -> HealthResponse:
         status="ok",
         service="geospatial-data-mainlayer",
         version=VERSION,
-        base_url=os.getenv("MAINLAYER_BASE_URL", "https://api.mainlayer.xyz"),
+        base_url=os.getenv("MAINLAYER_BASE_URL", "https://api.mainlayer.fr"),
     )
 
 
@@ -104,7 +104,7 @@ async def health() -> HealthResponse:
         status="ok",
         service="geospatial-data-mainlayer",
         version=VERSION,
-        base_url=os.getenv("MAINLAYER_BASE_URL", "https://api.mainlayer.xyz"),
+        base_url=os.getenv("MAINLAYER_BASE_URL", "https://api.mainlayer.fr"),
     )
 
 

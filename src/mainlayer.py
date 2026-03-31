@@ -2,7 +2,7 @@
 Mainlayer payment integration.
 
 Handles API-key validation, per-request billing, and usage tracking.
-Base URL: https://api.mainlayer.xyz
+Base URL: https://api.mainlayer.fr
 Auth:     Authorization: Bearer <api_key>
 """
 import os
@@ -18,7 +18,7 @@ from fastapi import HTTPException, Request, status
 # Config
 # ---------------------------------------------------------------------------
 
-MAINLAYER_BASE_URL: str = os.getenv("MAINLAYER_BASE_URL", "https://api.mainlayer.xyz")
+MAINLAYER_BASE_URL: str = os.getenv("MAINLAYER_BASE_URL", "https://api.mainlayer.fr")
 MAINLAYER_SECRET: str = os.getenv("MAINLAYER_SECRET", "")  # server-side signing key
 API_KEY_HEADER: str = "Authorization"
 BEARER_PREFIX: str = "Bearer "
