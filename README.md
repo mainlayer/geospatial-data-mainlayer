@@ -1,67 +1,70 @@
-# Geospatial Data Mainlayer
+# geospatial-data-mainlayer
 
-Geospatial and mapping data sold per query to AI agents via [Mainlayer](https://mainlayer.fr) payment infrastructure.
+Geospatial and mapping data sold per query to AI location agents via [Mainlayer](https://mainlayer.fr).
 
-## Endpoints
+## Overview
 
-| Method | Path | Price | Description |
-|--------|------|-------|-------------|
-| GET | `/geocode?address=` | $0.001 | Address → coordinates |
-| GET | `/reverse-geocode?lat=&lon=` | $0.001 | Coordinates → address |
-| GET | `/places/nearby?lat=&lon=&type=` | $0.003 | Nearby places search |
-| GET | `/routes?from=&to=` | $0.005 | Route calculation |
-| GET | `/tiles/{z}/{x}/{y}` | $0.0005 | Vector map tile data |
-| GET | `/boundaries/{region}` | $0.002 | Administrative boundaries |
-| GET | `/elevation?lat=&lon=` | $0.001 | Terrain elevation data |
-| GET | `/health` | free | Health check |
+Production geospatial API: geocoding, routing, map tiles, elevation, and administrative boundaries. Each query is micropaid through Mainlayer.
 
-## Authentication
+**API Docs:** https://geo-api.example.com/docs
 
-All paid endpoints require a Mainlayer API key:
+## Pricing
 
-```
-Authorization: Bearer <your_mainlayer_api_key>
-```
+| Endpoint | Cost | Use Case |
+|----------|------|----------|
+| `/geocode` | $0.001 | Address → lat/lon |
+| `/reverse-geocode` | $0.001 | Lat/lon → address |
+| `/places/nearby` | $0.003 | Find restaurants, hotels, etc. near coordinate |
+| `/routes` | $0.005 | Route + turn-by-turn directions |
+| `/tiles/{z}/{x}/{y}` | $0.0005 | Vector map tile (roads, buildings, land use) |
+| `/boundaries/{region}` | $0.002 | Administrative boundary polygon (GeoJSON) |
+| `/elevation` | $0.001 | Terrain elevation + surface type |
+| `/health` | FREE | Health check |
 
-Get your API key at [mainlayer.fr](https://mainlayer.fr).
-
-## Quick Start
+## Agent Example: Location-Based Queries
 
 ```python
+from mainlayer import MainlayerClient
 import httpx
 
-headers = {"Authorization": "Bearer YOUR_API_KEY"}
+client = MainlayerClient(api_key="sk_test_...")
+token = client.get_access_token("geospatial-data-mainlayer")
+headers = {"Authorization": f"Bearer {token}"}
 
-# Geocode an address
+# Geocode ($0.001)
 result = httpx.get(
     "https://geo-api.example.com/geocode",
-    params={"address": "10 Downing Street, London"},
-    headers=headers,
+    params={"address": "1600 Pennsylvania Ave, Washington DC"},
+    headers=headers
 ).json()
 
-print(f"Lat: {result['lat']}, Lon: {result['lon']}")
+# Find nearby restaurants ($0.003)
+places = httpx.get(
+    "https://geo-api.example.com/places/nearby",
+    params={"lat": result['lat'], "lon": result['lon'], "type": "restaurant"},
+    headers=headers
+).json()
+print(f"Found {len(places['results'])} restaurants")
 ```
 
-## Running Locally
+## Supported Place Types
+
+restaurant, cafe, hotel, hospital, school, park, gym, pharmacy, bank, supermarket, museum, library, gas_station, airport
+
+## Install & Run
 
 ```bash
 pip install -e ".[dev]"
-MAINLAYER_BYPASS_AUTH=true uvicorn src.main:app --reload
+uvicorn src.main:app --reload
+MAINLAYER_BYPASS_AUTH=true pytest tests/ -v  # local dev
 ```
 
-Open [http://localhost:8000/docs](http://localhost:8000/docs) for the interactive API docs.
+## Environment Variables
 
-## Development Mode
-
-Set `MAINLAYER_BYPASS_AUTH=true` to bypass payment validation during local development.
-
-## Running Tests
-
-```bash
-pytest tests/ -v
+```
+MAINLAYER_API_KEY      # Your Mainlayer API key
+MAINLAYER_BYPASS_AUTH  # Set true for local dev (skips payment checks)
+MAINLAYER_BASE_URL     # Mainlayer API endpoint (default: https://api.mainlayer.fr)
 ```
 
-## Examples
-
-- [`examples/geocode_addresses.py`](examples/geocode_addresses.py) — Geocode addresses and reverse-geocode coordinates
-- [`examples/get_tiles.py`](examples/get_tiles.py) — Fetch map tiles and nearby places
+📚 [Mainlayer Docs](https://docs.mainlayer.fr) | [mainlayer.fr](https://mainlayer.fr)
